@@ -1,4 +1,4 @@
-package http;
+package ru.khasanov.http;
 
 /**
  * Created by bulat on 05.01.17.
