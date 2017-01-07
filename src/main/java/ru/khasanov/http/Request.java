@@ -4,10 +4,12 @@ package ru.khasanov.http;
  * Created by bulat on 06.01.17.
  */
 public class Request {
-    private String rawString;
-    public Request(String rawString) {
-        this.rawString = rawString;
+    //    TODO
+    private Method method = Method.GET;
+
+    public Request() {
     }
+
     public Method getMethod() {
         return method;
     }
@@ -16,6 +18,4 @@ public class Request {
         this.method = method;
     }
 
-//    TODO
-    private Method method = Method.GET;
 }

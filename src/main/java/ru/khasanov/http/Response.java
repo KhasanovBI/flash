@@ -1,5 +1,8 @@
 package ru.khasanov.http;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,12 +12,18 @@ import java.util.Map;
 public class Response {
     public static final String HTTP_VERSION = "HTTP/1.1";
     private StatusCode statusCode;
-    private String body;
+    private byte[] body;
     private Map<String, String> headers = new HashMap<>();
 
     public Response(StatusCode statusCode) {
         setServerHeader();
         this.statusCode = statusCode;
+//        TODO
+        try {
+            body = Files.readAllBytes(Paths.get("root_dir/cute.jpg"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void setServerHeader() {
@@ -29,11 +38,11 @@ public class Response {
         this.statusCode = statusCode;
     }
 
-    public String getBody() {
+    public byte[] getBody() {
         return body;
     }
 
-    public void setBody(String body) {
+    public void setBody(byte[] body) {
         this.body = body;
     }
 

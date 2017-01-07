@@ -10,8 +10,6 @@ import settings.Settings;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
@@ -47,11 +45,10 @@ public class Server {
         }
         if (handler.read()) {
             final String rawString = handler.getRequestByteArrayOutputStream().toString();
-            Request request = new Request(rawString);
             logger.info(rawString);
-
+            Request request = RequestParser.parse(rawString);
             Response response = new StaticRequestHandler().dispatch(request);
-            clientSocketChannel.write(ResponseHandler.build(response));
+            clientSocketChannel.write(ResponseRenderer.build(response));
             clientSocketChannel.close();
         }
     }

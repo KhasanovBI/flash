@@ -1,12 +1,14 @@
 package ru.khasanov.http;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
 /**
  * Created by bulat on 07.01.17.
  */
-public final class ResponseHandler {
+public final class ResponseRenderer {
     private static final String DIVIDER = "\r\n";
 
     private static void appendStatusLine(StringBuilder stringBuilder, Response response) {
@@ -17,21 +19,23 @@ public final class ResponseHandler {
     }
 
     private static void appendHeaders(StringBuilder stringBuilder, Response response) {
-        for (Map.Entry<String, String> header: response.getHeaders().entrySet()) {
+        for (Map.Entry<String, String> header : response.getHeaders().entrySet()) {
             stringBuilder.append(header.getKey()).append(": ").append(header.getValue()).append(DIVIDER);
         }
         stringBuilder.append(DIVIDER);
-    }
-
-    private static void appendBody(StringBuilder stringBuilder, Response response) {
-        stringBuilder.append(response.getBody());
     }
 
     public static ByteBuffer build(Response response) {
         StringBuilder stringBuilder = new StringBuilder();
         appendStatusLine(stringBuilder, response);
         appendHeaders(stringBuilder, response);
-        appendBody(stringBuilder, response);
-        return ByteBuffer.wrap(stringBuilder.toString().getBytes());
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            outputStream.write(stringBuilder.toString().getBytes());
+            outputStream.write(response.getBody());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return ByteBuffer.wrap(outputStream.toByteArray());
     }
 }
