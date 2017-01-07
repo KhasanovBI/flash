@@ -3,6 +3,7 @@ package ru.khasanov;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.khasanov.exceptions.BadRequestException;
 import ru.khasanov.http.*;
 import ru.khasanov.http.handlers.StaticRequestHandler;
 import settings.Settings;
@@ -46,8 +47,13 @@ public class Server {
         if (handler.read()) {
             final String rawString = handler.getRequestByteArrayOutputStream().toString();
             logger.info(rawString);
-            Request request = RequestParser.parse(rawString);
-            Response response = new StaticRequestHandler().dispatch(request);
+            Response response;
+            try {
+                Request request = RequestParser.parse(rawString);
+                response = new StaticRequestHandler().dispatch(request);
+            } catch (BadRequestException e) {
+                response = new Response(e.getStatusCode());
+            }
             clientSocketChannel.write(ResponseRenderer.build(response));
             clientSocketChannel.close();
         }
