@@ -9,8 +9,7 @@ import java.nio.channels.SocketChannel;
  * Created by bulat on 07.01.17.
  */
 public class ClientSocketChannelHandler {
-    //    public static final int BUFFER_SIZE = 65536;
-    public static final int BUFFER_SIZE = 100;
+    public static final int BUFFER_SIZE = 32768;
     private SocketChannel clientSocketChannel;
     private ByteBuffer byteBuffer = ByteBuffer.allocate(BUFFER_SIZE);
 

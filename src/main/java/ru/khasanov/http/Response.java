@@ -10,7 +10,6 @@ import java.util.Map;
  * Created by bulat on 07.01.17.
  */
 public class Response {
-    public static final String HTTP_VERSION = "HTTP/1.1";
     private StatusCode statusCode;
     private byte[] body;
     private Map<String, String> headers = new HashMap<>();
