@@ -25,4 +25,8 @@ public class Settings {
     public int getPort() {
         return port;
     }
+
+    public String getRootDirectoryPath() {
+        return rootDirectoryPath;
+    }
 }

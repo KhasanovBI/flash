@@ -1,10 +1,10 @@
 package ru.khasanov;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.khasanov.exceptions.BadRequestException;
+import ru.khasanov.exceptions.ParseException;
 import ru.khasanov.http.*;
+import ru.khasanov.http.handlers.RequestHandler;
 import ru.khasanov.http.handlers.StaticRequestHandler;
 import settings.Settings;
 
@@ -23,9 +23,12 @@ import java.util.Iterator;
 public class Server {
     private static final Logger logger = LoggerFactory.getLogger(Server.class);
     private final Settings settings;
+    private RequestHandler staticRequestHandler;
 
-    Server(Settings settings) {
+    public Server(Settings settings) {
         this.settings = settings;
+        staticRequestHandler = new StaticRequestHandler();
+        staticRequestHandler.initialize(settings.getRootDirectoryPath());
     }
 
     private void accept(SelectionKey selectionKey) throws IOException {
@@ -50,9 +53,9 @@ public class Server {
             Response response;
             try {
                 Request request = RequestParser.parse(rawString);
-                response = new StaticRequestHandler().dispatch(request);
-            } catch (BadRequestException e) {
-                response = new Response(e.getStatusCode());
+                response = staticRequestHandler.dispatch(request);
+            } catch (ParseException e) {
+                response = new Response(StatusCode._400);
             }
             clientSocketChannel.write(ResponseRenderer.build(response));
             clientSocketChannel.close();
@@ -96,6 +99,7 @@ public class Server {
                 }
             }
         } catch (IOException e) {
+            // TODO log
             e.printStackTrace();
         }
     }

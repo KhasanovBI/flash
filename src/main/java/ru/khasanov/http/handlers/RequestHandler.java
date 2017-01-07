@@ -1,6 +1,6 @@
 package ru.khasanov.http.handlers;
 
-import ru.khasanov.exceptions.FlashException;
+import ru.khasanov.exceptions.FlashHTTPException;
 import ru.khasanov.exceptions.MethodNotAllowedException;
 import ru.khasanov.http.Request;
 import ru.khasanov.http.Response;
@@ -10,6 +10,10 @@ import ru.khasanov.http.Response;
  * Created by bulat on 07.01.17.
  */
 public class RequestHandler {
+    public void initialize(Object... objects) {
+        // Tornado style
+    }
+
     public Response dispatch(Request request) {
         Response response;
         try {
@@ -38,13 +42,13 @@ public class RequestHandler {
                 default:
                     throw new MethodNotAllowedException();
             }
-        } catch (FlashException e) {
+        } catch (FlashHTTPException e) {
             response = handleException(e);
         }
         return response;
     }
 
-    protected Response handleException(FlashException e) {
+    protected Response handleException(FlashHTTPException e) {
         return new Response(e.getStatusCode());
     }
 

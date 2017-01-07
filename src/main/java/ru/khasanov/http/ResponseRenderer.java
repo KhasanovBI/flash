@@ -9,7 +9,7 @@ import java.util.Map;
  * Created by bulat on 07.01.17.
  */
 public final class ResponseRenderer {
-    private static final String DIVIDER = "\r\n";
+    public static final String DIVIDER = "\r\n";
 
     private static void appendStatusLine(StringBuilder stringBuilder, Response response) {
         StatusCode statusCode = response.getStatusCode();
@@ -32,7 +32,10 @@ public final class ResponseRenderer {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
             outputStream.write(stringBuilder.toString().getBytes());
-            outputStream.write(response.getBody());
+            byte[] body = response.getBody();
+            if (body != null) {
+                outputStream.write(body);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
