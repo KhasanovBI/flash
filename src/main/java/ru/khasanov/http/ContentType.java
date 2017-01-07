@@ -4,15 +4,16 @@ package ru.khasanov.http;
  * Created by bulat on 05.01.17.
  */
 public enum ContentType {
-    // TODO несколько расширений на один контент-тайп
-    HTML("html", "text/html"),
-    JS("js", "application/javascript"),
-    JPEG("jpeg", "image/jpeg");
+    APPLICATION_JAVASCRIPT("application/javascript", "js"),
+    IMAGE_JPEG("image/jpeg", "jpeg", "jpg"),
+    TEXT_HTML("text/html", "html", "htm"),
+    TEXT_PLAIN("text/plain", "txt");
 
-    ContentType(String extension, String contentType) {
-        this.extension = extension;
+    ContentType(String contentType, String... extensions) {
+        this.extensions = extensions;
         this.contentType = contentType;
     }
-    private final String extension;
+
+    private final String[] extensions;
     private final String contentType;
 }

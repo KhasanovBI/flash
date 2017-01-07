@@ -15,4 +15,17 @@ public enum StatusCode {
     }
     private final int code;
     private final String message;
+
+    public String getMessage() {
+        return message;
+    }
+
+    @Override
+    public String toString() {
+        return message;
+    }
+
+    public int getCode() {
+        return code;
+    }
 }
