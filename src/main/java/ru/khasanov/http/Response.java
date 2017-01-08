@@ -49,7 +49,7 @@ public class Response {
         return headers;
     }
 
-    public void setHeaders(Map<String, String> headers) {
-        this.headers = headers;
+    public void setHeader(String header, String value) {
+        this.headers.put(header, value);
     }
 }

@@ -1,9 +1,8 @@
 package ru.khasanov.http.handlers;
 
+import org.apache.commons.io.FilenameUtils;
 import ru.khasanov.exceptions.NotFoundException;
-import ru.khasanov.http.Request;
-import ru.khasanov.http.Response;
-import ru.khasanov.http.StatusCode;
+import ru.khasanov.http.*;
 
 import java.io.IOException;
 import java.net.URI;
@@ -11,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
 
 /**
  * Created by bulat on 07.01.17.
@@ -30,8 +30,18 @@ public class StaticRequestHandler extends RequestHandler {
         return requestURIString;
     }
 
+    public String getContentType(Path filePath) {
+        String fileExtension = FilenameUtils.getExtension(filePath.toString());
+        ContentType contentType = ContentType.map.get(fileExtension);
+        if (contentType == null) {
+            contentType = ContentType.TEXT_PLAIN;
+        }
+        return contentType.getType();
+    }
+
     public Response get(Request request) {
         URI requestURI = request.getRequestURI();
+//        TODO
         String requestURIString = requestURI.toString();
         String stripRequestURIString = stripFirstSlash(requestURIString);
         try {
@@ -42,7 +52,10 @@ public class StaticRequestHandler extends RequestHandler {
                 throw new IOException();
             }
             byte[] body = Files.readAllBytes(filePath);
-            return new Response(StatusCode._200, body);
+            Response response = new Response(StatusCode._200, body);
+//            TODO Move to Response
+            response.setHeader(ResponseHeader.CONTENT_TYPE.getHeaderName(), getContentType(filePath));
+            return response;
         } catch (IOException e) {
 //            TODO log
             e.printStackTrace();

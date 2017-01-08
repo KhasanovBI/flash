@@ -21,4 +21,8 @@ public enum HTTPVersion {
             map.put(httpVersion.version, httpVersion);
         }
     }
+
+    public String getVersion() {
+        return version;
+    }
 }

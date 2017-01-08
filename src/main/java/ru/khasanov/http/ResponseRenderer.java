@@ -13,7 +13,7 @@ public final class ResponseRenderer {
 
     private static void appendStatusLine(StringBuilder stringBuilder, Response response) {
         StatusCode statusCode = response.getStatusCode();
-        stringBuilder.append(HTTPVersion.HTTP_1_1).append(" ").append(statusCode.getCode()).append(" ")
+        stringBuilder.append(HTTPVersion.HTTP_1_1.getVersion()).append(" ").append(statusCode.getCode()).append(" ")
                 .append(statusCode.getMessage()).append(DIVIDER);
 
     }
