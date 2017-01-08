@@ -9,7 +9,7 @@ import java.util.Map;
 public class Response {
     private StatusCode statusCode;
     private byte[] body;
-    private Map<String, String> headers = new HashMap<>();
+    private Map<ResponseHeader, String> headers = new HashMap<>();
 
     public Response(StatusCode statusCode, byte[] body) {
         this(statusCode);
@@ -26,7 +26,7 @@ public class Response {
     }
 
     public void setServerHeader() {
-        headers.put("Server", "Flash 0.1.0");
+        headers.put(ResponseHeader.SERVER, "Flash 0.1.0");
     }
 
     public StatusCode getStatusCode() {
@@ -45,11 +45,11 @@ public class Response {
         this.body = body;
     }
 
-    public Map<String, String> getHeaders() {
+    public Map<ResponseHeader, String> getHeaders() {
         return headers;
     }
 
-    public void setHeader(String header, String value) {
+    public void setHeader(ResponseHeader header, String value) {
         this.headers.put(header, value);
     }
 }

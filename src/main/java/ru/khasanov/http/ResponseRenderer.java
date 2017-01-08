@@ -19,8 +19,9 @@ public final class ResponseRenderer {
     }
 
     private static void appendHeaders(StringBuilder stringBuilder, Response response) {
-        for (Map.Entry<String, String> header : response.getHeaders().entrySet()) {
-            stringBuilder.append(header.getKey()).append(": ").append(header.getValue()).append(DIVIDER);
+        for (Map.Entry<ResponseHeader, String> header : response.getHeaders().entrySet()) {
+            stringBuilder.append(header.getKey().getHeaderName()).append(": ").append(header.getValue())
+                    .append(DIVIDER);
         }
         stringBuilder.append(DIVIDER);
     }

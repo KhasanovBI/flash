@@ -26,12 +26,12 @@ public class StaticRequestHandler extends RequestHandler {
         this.rootDirectoryPath = (String) objects[0];
     }
 
-    public String stripFirstSlash(String requestURIString) {
-        int slashIndex = requestURIString.indexOf('/');
+    public String stripFirstSlash(String requestPath) {
+        int slashIndex = requestPath.indexOf('/');
         if (slashIndex == 1) {
-            return requestURIString.substring(slashIndex);
+            return requestPath.substring(slashIndex);
         }
-        return requestURIString;
+        return requestPath;
     }
 
     public String getContentType(Path filePath) {
@@ -45,9 +45,8 @@ public class StaticRequestHandler extends RequestHandler {
 
     public Response get(Request request) {
         URI requestURI = request.getRequestURI();
-//        TODO парсинг
-        String requestURIString = requestURI.toString();
-        String stripRequestURIString = stripFirstSlash(requestURIString);
+        String requestPath = requestURI.getPath();
+        String stripRequestURIString = stripFirstSlash(requestPath);
         Path filePath = Paths.get(this.rootDirectoryPath, stripRequestURIString);
 
         if (!Files.exists(filePath, LinkOption.NOFOLLOW_LINKS) ||
@@ -58,12 +57,10 @@ public class StaticRequestHandler extends RequestHandler {
         try {
             body = Files.readAllBytes(filePath);
         } catch (IOException e) {
-            logger.error(Arrays.toString(e.getStackTrace()));
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
         Response response = new Response(StatusCode._200, body);
-//            TODO Move to Response
-        response.setHeader(ResponseHeader.CONTENT_TYPE.getHeaderName(), getContentType(filePath));
+        response.setHeader(ResponseHeader.CONTENT_TYPE, getContentType(filePath));
         return response;
     }
 }
