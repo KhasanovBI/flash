@@ -1,22 +1,26 @@
-package settings;
+package ru.khasanov.settings;
 
 import com.beust.jcommander.Parameter;
-import settings.validators.DirectoryExistsValidator;
-import settings.validators.PortValidator;
+import ru.khasanov.settings.validators.DirectoryExistsValidator;
+import ru.khasanov.settings.validators.PortValidator;
 
 /**
  * Created by bulat on 06.01.17.
  */
 public class Settings {
-    @Parameter(names = {"-c", "--cache"}, description = "Set cache using")
+    @Parameter(names = {"-c", "--cache"}, description = "Enable cache using")
     boolean cache = true;
     @Parameter(names = {"-r", "--root-directory"}, description = "Set root directory path",
             validateWith = DirectoryExistsValidator.class)
-    private String rootDirectoryPath = "root_dir";
+    private String rootDirectory = "root_dir";
     @Parameter(names = {"-p", "--port"}, description = "Set port", validateWith = PortValidator.class)
     private int port = 80;
     @Parameter(names = {"-l", "--loggingEnable"}, description = "Enable logging")
     private boolean loggingEnable = true;
+
+    public boolean isCache() {
+        return cache;
+    }
 
     public boolean isLoggingEnable() {
         return loggingEnable;
@@ -26,7 +30,7 @@ public class Settings {
         return port;
     }
 
-    public String getRootDirectoryPath() {
-        return rootDirectoryPath;
+    public String getRootDirectory() {
+        return rootDirectory;
     }
 }

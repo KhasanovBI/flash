@@ -20,7 +20,7 @@ public class RequestParser {
     private static final Logger logger = LoggerFactory.getLogger(RequestParser.class);
     //            TODO расширить символы URI
     private static final Pattern requestLineRegex = Pattern.compile(
-            "^([a-zA-Z]+) ([\\w\\/\\.?=]+) (HTTP\\/[0-2\\.]+)$");
+            "^([a-zA-Z]+) ([\\w\\/\\.?=\\-]+) (HTTP\\/[0-2\\.]+)$");
 
     private static void parseRequestLine(Request request, BufferedReader bufferedReader) throws IOException {
         String requestLine = bufferedReader.readLine();

@@ -2,7 +2,7 @@ package ru.khasanov;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
-import settings.Settings;
+import ru.khasanov.settings.Settings;
 
 /**
  * Created by bulat on 05.01.17.

@@ -1,4 +1,4 @@
-package settings.validators;
+package ru.khasanov.settings.validators;
 
 import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.ParameterException;
@@ -14,7 +14,7 @@ public class DirectoryExistsValidator implements IParameterValidator {
     @Override
     public void validate(String name, String value) throws ParameterException {
         if (!Files.isDirectory(Paths.get(value), LinkOption.NOFOLLOW_LINKS)) {
-            throw new ParameterException(String.format("Invalid directory: %s", name, value));
+            throw new ParameterException(String.format("Invalid directory: %s", value));
         }
     }
 }

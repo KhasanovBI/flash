@@ -10,10 +10,6 @@ import ru.khasanov.http.Response;
  * Created by bulat on 07.01.17.
  */
 public class RequestHandler {
-    public void initialize(Object... objects) {
-        // Tornado style
-    }
-
     public Response dispatch(Request request) {
         Response response;
         try {

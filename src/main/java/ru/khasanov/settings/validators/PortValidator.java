@@ -1,4 +1,4 @@
-package settings.validators;
+package ru.khasanov.settings.validators;
 
 import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.ParameterException;

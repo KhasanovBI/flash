@@ -6,7 +6,7 @@ import ru.khasanov.exceptions.ParseException;
 import ru.khasanov.http.*;
 import ru.khasanov.http.handlers.RequestHandler;
 import ru.khasanov.http.handlers.StaticRequestHandler;
-import settings.Settings;
+import ru.khasanov.settings.Settings;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -27,8 +27,7 @@ public class Server {
 
     public Server(Settings settings) {
         this.settings = settings;
-        staticRequestHandler = new StaticRequestHandler();
-        staticRequestHandler.initialize(settings.getRootDirectoryPath());
+        staticRequestHandler = new StaticRequestHandler(settings.getRootDirectory());
     }
 
     private void accept(SelectionKey selectionKey) throws IOException {
@@ -99,8 +98,7 @@ public class Server {
                 }
             }
         } catch (IOException e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
     }
 }

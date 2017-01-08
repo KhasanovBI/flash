@@ -1,10 +1,12 @@
 package ru.khasanov.http.handlers;
 
-import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.khasanov.exceptions.NotFoundException;
-import ru.khasanov.http.*;
+import ru.khasanov.http.Request;
+import ru.khasanov.http.Response;
+import ru.khasanov.http.ResponseHeader;
+import ru.khasanov.http.StatusCode;
 
 import java.io.IOException;
 import java.net.URI;
@@ -12,7 +14,6 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 
 
 /**
@@ -20,10 +21,11 @@ import java.util.Arrays;
  */
 public class StaticRequestHandler extends RequestHandler {
     private static final Logger logger = LoggerFactory.getLogger(StaticRequestHandler.class);
-    private String rootDirectoryPath;
+    private static final String DEFAULT_CONTENT_TYPE = "text/plain";
+    private String rootDirectory;
 
-    public void initialize(Object... objects) {
-        this.rootDirectoryPath = (String) objects[0];
+    public StaticRequestHandler(String rootDirectory) {
+        this.rootDirectory = rootDirectory;
     }
 
     public String stripFirstSlash(String requestPath) {
@@ -35,19 +37,21 @@ public class StaticRequestHandler extends RequestHandler {
     }
 
     public String getContentType(Path filePath) {
-        String fileExtension = FilenameUtils.getExtension(filePath.toString());
-        ContentType contentType = ContentType.map.get(fileExtension);
-        if (contentType == null) {
-            contentType = ContentType.TEXT_PLAIN;
+        // Изначально здесь было ручное определение по расширению, если что можно вернуть.
+        String contentType = null;
+        try {
+            contentType = Files.probeContentType(filePath);
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
         }
-        return contentType.getType();
+        return contentType == null ? DEFAULT_CONTENT_TYPE : contentType;
     }
 
     public Response get(Request request) {
         URI requestURI = request.getRequestURI();
         String requestPath = requestURI.getPath();
         String stripRequestURIString = stripFirstSlash(requestPath);
-        Path filePath = Paths.get(this.rootDirectoryPath, stripRequestURIString);
+        Path filePath = Paths.get(this.rootDirectory, stripRequestURIString);
 
         if (!Files.exists(filePath, LinkOption.NOFOLLOW_LINKS) ||
                 Files.isDirectory(filePath, LinkOption.NOFOLLOW_LINKS)) {
