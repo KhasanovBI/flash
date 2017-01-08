@@ -1,3 +1,5 @@
+![Flash](https://raw.githubusercontent.com/KhasanovBI/flash/master/image/logo.jpg)
+
 Написать HTTP сервер, возвращающий статические файлы по GET запросу
 
 Корневой каталог фиксированный или настраивается в конфиге
