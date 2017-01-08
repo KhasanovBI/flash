@@ -37,6 +37,7 @@ public final class ResponseRenderer {
                 outputStream.write(body);
             }
         } catch (IOException e) {
+//            TODO
             e.printStackTrace();
         }
         return ByteBuffer.wrap(outputStream.toByteArray());
