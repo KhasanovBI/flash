@@ -1,5 +1,8 @@
 package ru.khasanov.http;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -9,6 +12,8 @@ import java.util.Map;
  * Created by bulat on 07.01.17.
  */
 public final class ResponseRenderer {
+    private static final Logger logger = LoggerFactory.getLogger(ResponseRenderer.class);
+
     public static final String DIVIDER = "\r\n";
 
     private static void appendStatusLine(StringBuilder stringBuilder, Response response) {
@@ -38,8 +43,7 @@ public final class ResponseRenderer {
                 outputStream.write(body);
             }
         } catch (IOException e) {
-//            TODO
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
         return ByteBuffer.wrap(outputStream.toByteArray());
     }

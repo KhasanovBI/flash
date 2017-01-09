@@ -66,7 +66,7 @@ public class StaticRequestHandler extends RequestHandler {
             }
             try {
                 body = Files.readAllBytes(filePath);
-//                TODO двойная проверка
+                // Возможно стоит сделать интерфейс с отдельным обработчик операций с ресурсами, но пока не критично.
                 if (fileCache != null) {
                     fileCache.set(filePath, body);
                 }
