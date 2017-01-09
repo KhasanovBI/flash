@@ -73,8 +73,6 @@ public class StaticRequestHandler extends RequestHandler {
             } catch (IOException e) {
                 logger.error(e.getMessage(), e);
             }
-        } else {
-            logger.info(filePath + " найден в кэше.");
         }
         return body;
     }
