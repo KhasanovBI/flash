@@ -21,6 +21,7 @@ import java.util.Iterator;
  * Created by bulat on 06.01.17.
  */
 public class Server {
+    public static final String VERSION = "0.1.0";
     private static final Logger logger = LoggerFactory.getLogger(Server.class);
     private final Settings settings;
     private RequestHandler staticRequestHandler;

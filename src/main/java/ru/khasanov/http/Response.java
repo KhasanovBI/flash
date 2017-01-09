@@ -1,5 +1,7 @@
 package ru.khasanov.http;
 
+import ru.khasanov.Server;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,7 +28,7 @@ public class Response {
     }
 
     public void setServerHeader() {
-        headers.put(ResponseHeader.SERVER, "Flash 0.1.0");
+        headers.put(ResponseHeader.SERVER, "Flash " + Server.VERSION);
     }
 
     public StatusCode getStatusCode() {
