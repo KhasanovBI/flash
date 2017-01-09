@@ -13,7 +13,7 @@ public class Response {
 
     public Response(StatusCode statusCode, byte[] body) {
         this(statusCode);
-        this.body = body;
+        setBody(body);
     }
 
     public Response(StatusCode statusCode) {
@@ -43,6 +43,11 @@ public class Response {
 
     public void setBody(byte[] body) {
         this.body = body;
+        setContentLengthHeader(body.length);
+    }
+
+    private void setContentLengthHeader(int contentLength) {
+        headers.put(ResponseHeader.CONTENT_LENGTH, String.valueOf(contentLength));
     }
 
     public Map<ResponseHeader, String> getHeaders() {
