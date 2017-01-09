@@ -8,18 +8,18 @@ import ru.khasanov.settings.validators.PortValidator;
  * Created by bulat on 06.01.17.
  */
 public class Settings {
-    @Parameter(names = {"-c", "--cache"}, description = "Enable cache using")
-    boolean cache = true;
+    @Parameter(names = {"-c", "--cache"}, arity = 1, description = "Enable cache using")
+    private boolean cacheEnable = true;
     @Parameter(names = {"-r", "--root-directory"}, description = "Set root directory path",
             validateWith = DirectoryExistsValidator.class)
     private String rootDirectory = "root_dir";
     @Parameter(names = {"-p", "--port"}, description = "Set port", validateWith = PortValidator.class)
-    private int port = 80;
-    @Parameter(names = {"-l", "--loggingEnable"}, description = "Enable logging")
+    private int port = 8080;
+    @Parameter(names = {"-l", "--loggingEnable"}, arity = 1, description = "Enable logging")
     private boolean loggingEnable = true;
 
-    public boolean isCache() {
-        return cache;
+    public boolean isCacheEnable() {
+        return cacheEnable;
     }
 
     public boolean isLoggingEnable() {

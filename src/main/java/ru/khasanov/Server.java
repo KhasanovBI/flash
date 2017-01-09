@@ -27,7 +27,7 @@ public class Server {
 
     public Server(Settings settings) {
         this.settings = settings;
-        staticRequestHandler = new StaticRequestHandler(settings.getRootDirectory());
+        staticRequestHandler = new StaticRequestHandler(settings.getRootDirectory(), settings.isCacheEnable());
     }
 
     private void accept(SelectionKey selectionKey) throws IOException {
