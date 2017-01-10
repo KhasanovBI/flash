@@ -28,7 +28,7 @@ public class Response {
     }
 
     public void setServerHeader() {
-        headers.put(ResponseHeader.SERVER, "Flash " + Server.VERSION);
+        headers.put(ResponseHeader.SERVER, "Flash/" + Server.VERSION);
     }
 
     public StatusCode getStatusCode() {

@@ -2,8 +2,6 @@ package ru.khasanov;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.khasanov.exceptions.ParseException;
-import ru.khasanov.http.*;
 import ru.khasanov.http.handlers.RequestHandler;
 import ru.khasanov.http.handlers.StaticRequestHandler;
 import ru.khasanov.settings.Settings;
@@ -16,7 +14,8 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by bulat on 06.01.17.
@@ -26,7 +25,7 @@ public class Server {
     private static final Integer MIN_WORKER_COUNT = 2;
     private static final Logger logger = LoggerFactory.getLogger(Server.class);
     private final Settings settings;
-    private ForkJoinPool executor;
+    private ExecutorService executor;
     private RequestHandler staticRequestHandler;
 
     public Server(Settings settings) {
@@ -44,46 +43,45 @@ public class Server {
             --parallelism;
         }
         parallelism = Math.max(parallelism, MIN_WORKER_COUNT);
-        executor = new ForkJoinPool(parallelism);
+        executor = Executors.newFixedThreadPool(parallelism);
     }
 
     private void handleAccept(SelectionKey selectionKey) throws IOException {
         SocketChannel clientSocketChannel = ((ServerSocketChannel) selectionKey.channel()).accept();
         clientSocketChannel.configureBlocking(false);
         clientSocketChannel.register(selectionKey.selector(), SelectionKey.OP_READ);
-        if (settings.isLoggingEnable()) {
-            logger.debug("Connection Accepted: " + clientSocketChannel.getLocalAddress());
-        }
+        logger.debug("Connection Accepted: " + clientSocketChannel.getLocalAddress());
     }
 
     private void handleRead(SelectionKey selectionKey) throws IOException {
-        SocketChannel clientSocketChannel = (SocketChannel) selectionKey.channel();
-        ClientSocketChannelHandler handler = (ClientSocketChannelHandler) selectionKey.attachment();
+        ClientSocketHandler handler = (ClientSocketHandler) selectionKey.attachment();
         if (handler == null) {
-            handler = new ClientSocketChannelHandler(clientSocketChannel);
+            handler = new ClientSocketHandler(selectionKey);
             selectionKey.attach(handler);
         }
-        if (handler.read()) {
-            final String rawString = handler.getRequestByteArrayOutputStream().toString();
-            logger.info(rawString);
-            Response response;
-            try {
-                Request request = RequestParser.parse(rawString);
-                response = staticRequestHandler.dispatch(request);
-            } catch (ParseException e) {
-                response = new Response(StatusCode._400);
-            }
-            clientSocketChannel.write(ResponseRenderer.build(response));
-            clientSocketChannel.close();
+        if (!handler.read()) {
+            logger.error("Read error " + handler);
+            close(selectionKey);
+            return;
         }
+        final ClientSocketHandler finalHandler = handler;
+        executor.submit(new Runnable() {
+            @Override
+            public void run() {
+                finalHandler.process(staticRequestHandler);
+            }
+        });
     }
 
-    private void handleWrite(SelectionKey selectionKey) {
-
+    private void close(SelectionKey selectionKey) throws IOException {
+        selectionKey.cancel();
+        selectionKey.channel().close();
     }
 
-    private void handleConnect(SelectionKey selectionKey) {
-
+    private void handleWrite(SelectionKey selectionKey) throws IOException {
+        ClientSocketHandler handler = (ClientSocketHandler) selectionKey.attachment();
+        handler.write();
+        close(selectionKey);
     }
 
     public ServerSocketChannel initServerSocketChannel() throws IOException {
@@ -91,7 +89,7 @@ public class Server {
         serverSocketChannel.configureBlocking(false);
         SocketAddress socketAddress = new InetSocketAddress("localhost", settings.getPort());
         serverSocketChannel.socket().bind(socketAddress);
-        logger.info(String.format("Started Flash %s server at %s", VERSION, socketAddress));
+        System.out.println(String.format("Started Flash %s server at %s", VERSION, socketAddress));
         return serverSocketChannel;
     }
 
@@ -110,14 +108,19 @@ public class Server {
                 Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
                 while (iterator.hasNext()) {
                     SelectionKey selectionKey = iterator.next();
-                    if (selectionKey.isAcceptable()) {
-                        handleAccept(selectionKey);
-                    } else if (selectionKey.isReadable()) {
-                        handleRead(selectionKey);
-                    } else if (selectionKey.isWritable()) {
-                        handleWrite(selectionKey);
-                    } else if (selectionKey.isConnectable()) {
-                        handleConnect(selectionKey);
+                    if (selectionKey.isValid()) {
+                        try {
+                            if (selectionKey.isAcceptable()) {
+                                handleAccept(selectionKey);
+                            } else if (selectionKey.isReadable()) {
+                                handleRead(selectionKey);
+                            } else if (selectionKey.isWritable()) {
+                                handleWrite(selectionKey);
+                            }
+                        } catch (IOException e) {
+                            logger.error(e.getMessage(), e);
+                            close(selectionKey);
+                        }
                     }
                     iterator.remove();
                 }

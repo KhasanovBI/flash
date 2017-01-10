@@ -56,10 +56,10 @@ public class FileCacheWatcher extends Thread {
         if (trace) {
             Path prev = keys.get(watchKey);
             if (prev == null) {
-                logger.info("register: " + dirPath);
+                logger.info("Register: " + dirPath);
             } else {
                 if (!dirPath.equals(prev)) {
-                    logger.info(String.format("update: %s -> %s", prev, dirPath));
+                    logger.info(String.format("Update: %s -> %s", prev, dirPath));
                 }
             }
         }
