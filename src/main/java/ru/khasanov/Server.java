@@ -16,31 +16,47 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
+import java.util.concurrent.*;
 
 /**
  * Created by bulat on 06.01.17.
  */
 public class Server {
     public static final String VERSION = "0.1.0";
+    private static final Integer MIN_WORKER_COUNT = 2;
     private static final Logger logger = LoggerFactory.getLogger(Server.class);
     private final Settings settings;
+    private ForkJoinPool executor;
     private RequestHandler staticRequestHandler;
 
     public Server(Settings settings) {
         this.settings = settings;
+        initExecutor(settings);
         staticRequestHandler = new StaticRequestHandler(settings.getRootDirectory(), settings.isCacheEnable());
     }
 
-    private void accept(SelectionKey selectionKey) throws IOException {
+    private void initExecutor(Settings settings) {
+        int cpuCount = Runtime.getRuntime().availableProcessors();
+        // Вычитаем по 1 процессору на главный поток и на поток FileCacheWatcher, если кеш включен, и ограничиваемся
+        // минимальным числом MIN_WORKER_COUNT
+        int parallelism = cpuCount - 1;
+        if (settings.isCacheEnable()) {
+            --parallelism;
+        }
+        parallelism = Math.max(parallelism, MIN_WORKER_COUNT);
+        executor = new ForkJoinPool(parallelism);
+    }
+
+    private void handleAccept(SelectionKey selectionKey) throws IOException {
         SocketChannel clientSocketChannel = ((ServerSocketChannel) selectionKey.channel()).accept();
         clientSocketChannel.configureBlocking(false);
         clientSocketChannel.register(selectionKey.selector(), SelectionKey.OP_READ);
         if (settings.isLoggingEnable()) {
-            logger.info("Connection Accepted: " + clientSocketChannel.getLocalAddress());
+            logger.debug("Connection Accepted: " + clientSocketChannel.getLocalAddress());
         }
     }
 
-    private void read(SelectionKey selectionKey) throws IOException {
+    private void handleRead(SelectionKey selectionKey) throws IOException {
         SocketChannel clientSocketChannel = (SocketChannel) selectionKey.channel();
         ClientSocketChannelHandler handler = (ClientSocketChannelHandler) selectionKey.attachment();
         if (handler == null) {
@@ -62,23 +78,31 @@ public class Server {
         }
     }
 
-    public void write(SelectionKey selectionKey) {
+    private void handleWrite(SelectionKey selectionKey) {
 
     }
 
-    public void connect(SelectionKey selectionKey) {
+    private void handleConnect(SelectionKey selectionKey) {
 
+    }
+
+    public ServerSocketChannel initServerSocketChannel() throws IOException {
+        ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
+        serverSocketChannel.configureBlocking(false);
+        SocketAddress socketAddress = new InetSocketAddress("localhost", settings.getPort());
+        serverSocketChannel.socket().bind(socketAddress);
+        logger.info(String.format("Started Flash %s server at %s", VERSION, socketAddress));
+        return serverSocketChannel;
     }
 
     public void start() {
         try {
             Selector selector = Selector.open();
-            ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
-            serverSocketChannel.configureBlocking(false);
-            SocketAddress socketAddress = new InetSocketAddress("localhost", settings.getPort());
-            serverSocketChannel.socket().bind(socketAddress);
+
+            ServerSocketChannel serverSocketChannel = initServerSocketChannel();
+
             serverSocketChannel.register(selector, serverSocketChannel.validOps());
-            logger.info("Started Flash server at " + socketAddress);
+
             while (true) {
                 if (selector.select() == 0) {
                     continue;
@@ -87,13 +111,13 @@ public class Server {
                 while (iterator.hasNext()) {
                     SelectionKey selectionKey = iterator.next();
                     if (selectionKey.isAcceptable()) {
-                        accept(selectionKey);
+                        handleAccept(selectionKey);
                     } else if (selectionKey.isReadable()) {
-                        read(selectionKey);
+                        handleRead(selectionKey);
                     } else if (selectionKey.isWritable()) {
-                        write(selectionKey);
+                        handleWrite(selectionKey);
                     } else if (selectionKey.isConnectable()) {
-                        connect(selectionKey);
+                        handleConnect(selectionKey);
                     }
                     iterator.remove();
                 }

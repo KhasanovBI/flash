@@ -23,15 +23,13 @@ import java.nio.file.Paths;
 public class StaticRequestHandler extends RequestHandler {
     private static final Logger logger = LoggerFactory.getLogger(StaticRequestHandler.class);
     private static final String DEFAULT_CONTENT_TYPE = "text/plain";
-    private String rootDirectory;
-    private FileCache fileCache;
+    private final String rootDirectory;
+    private final FileCache fileCache;
 
     public StaticRequestHandler(String rootDirectory, boolean isCacheEnable) {
         this.rootDirectory = rootDirectory;
         // TODO DI
-        if (isCacheEnable) {
-            fileCache = new FileCache(rootDirectory);
-        }
+        fileCache = (isCacheEnable)? new FileCache(rootDirectory): null;
     }
 
     public String stripFirstSlash(String requestPath) {
