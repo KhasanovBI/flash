@@ -34,6 +34,7 @@ public class ClientSocketHandler {
         while (true) {
             readNumber = clientSocketChannel.read(byteBuffer);
             if (readNumber < 0) {
+                logger.error("Read error " + clientSocketChannel.getRemoteAddress());
                 return false;
             } else if (readNumber == 0) {
                 return true;
@@ -60,10 +61,6 @@ public class ClientSocketHandler {
     }
 
     public void write() throws IOException {
-        int numBytes = clientSocketChannel.write(responseBytes);
-        if (numBytes > 0) {
-            selectionKey.interestOps(SelectionKey.OP_READ);
-            selectionKey.selector().wakeup();
-        }
+        clientSocketChannel.write(responseBytes);
     }
 }

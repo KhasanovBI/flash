@@ -50,7 +50,7 @@ public class Server {
         SocketChannel clientSocketChannel = ((ServerSocketChannel) selectionKey.channel()).accept();
         clientSocketChannel.configureBlocking(false);
         clientSocketChannel.register(selectionKey.selector(), SelectionKey.OP_READ);
-        logger.debug("Connection Accepted: " + clientSocketChannel.getLocalAddress());
+        logger.debug("Connection Accepted: " + clientSocketChannel.getRemoteAddress());
     }
 
     private void handleRead(SelectionKey selectionKey) throws IOException {
@@ -60,7 +60,6 @@ public class Server {
             selectionKey.attach(handler);
         }
         if (!handler.read()) {
-            logger.error("Read error " + handler);
             close(selectionKey);
             return;
         }
@@ -96,9 +95,7 @@ public class Server {
     public void start() {
         try {
             Selector selector = Selector.open();
-
             ServerSocketChannel serverSocketChannel = initServerSocketChannel();
-
             serverSocketChannel.register(selector, serverSocketChannel.validOps());
 
             while (true) {
