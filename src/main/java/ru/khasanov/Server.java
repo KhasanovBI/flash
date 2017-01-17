@@ -21,6 +21,7 @@ import java.util.concurrent.Executors;
  * Created by bulat on 06.01.17.
  */
 public class Server {
+    public static final String NAME = "Flash";
     public static final String VERSION = "0.1.0";
     private static final Integer MIN_WORKER_COUNT = 2;
     private static final Logger logger = LoggerFactory.getLogger(Server.class);
@@ -88,7 +89,7 @@ public class Server {
         serverSocketChannel.configureBlocking(false);
         SocketAddress socketAddress = new InetSocketAddress("localhost", settings.getPort());
         serverSocketChannel.socket().bind(socketAddress);
-        System.out.println(String.format("Started Flash %s server at %s", VERSION, socketAddress));
+        System.out.println(String.format("Started %s %s server at %s", NAME, VERSION, socketAddress));
         return serverSocketChannel;
     }
 

@@ -24,8 +24,13 @@ public class Main {
     public static void main(String[] args) {
         Settings settings = new Settings();
         JCommander jCommander = new JCommander(settings);
+        jCommander.setProgramName(Server.NAME);
         try {
             jCommander.parse(args);
+            if (settings.isHelp()) {
+                jCommander.usage();
+                return;
+            }
             if (!settings.isLoggingEnable()) {
                 disableLogging();
             }
